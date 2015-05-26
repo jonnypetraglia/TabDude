@@ -69,8 +69,8 @@ though, it will just take effect the next interval.
 ```TabDude.set(vars)``` is just lie `update` except it will __immediately__
 take effect.
 
-```TabDude.reset()``` will change the title back to what it was before TabDude
-started. You can then call 
+```TabDude.stop()``` will change the title back to what it was before TabDude
+started.
 
 ```TabDude.restart()``` is equivalent to calling `start` with the same
 parameters you did before.

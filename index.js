@@ -1,15 +1,7 @@
 var TabDude = {
-  origTitle: document.title,
-  _intervalSpeed: 1000,
-  _interval: null,
-  _vars: null,
-  _lastState: 0,
-  _templ: null,
-  _regex: null,
+  originalTitle: document.title,
   start: function(template, vars, options) {
-    if(options) {
-      this._intervalSpeed = options.intervalSpeed || this._intervalSpeed
-    }
+    this._opts = options || this._opts;
     this._templ = template || this._templ;
     this._regex = {};
     var matcher = /{{ ?([A-Za-z0-9_][A-Za-z0-9_-]+) ?}}/gi;
@@ -18,40 +10,69 @@ var TabDude = {
       this._regex[match[1]] = new RegExp("{{ ?" + match[1] + " ?}}", "gi");
     this.set(vars);
   },
-  _substitute: function(subsIndex) {
-    var multipass = Array.isArray(this._vars);
-    if(!multipass && subsIndex)
-      return this.origTitle;
-    var result = this._templ;
-    var subs = multipass ? this._vars[subsIndex] : this._vars;
-    var keys = Object.keys(this._regex);
-    for(var i=0; i<keys.length; i++)
-      result = result.replace(this._regex[keys[i]], subs[keys[i]]);
-    return result;
-  },
-  restart: this.start,
+  restart: function() { this.start() },
   update: function(vars) {
-    console.log(vars)
     this._vars = vars || this._vars;
   },
   set: function(vars) {
     this.update(vars);
-    if(!this._vars) {
-      document.title = this._templ;
+    if(this._opts.noFocus && this._pageFocused)
       return;
+    if(!this._vars)
+      document.title = this._templ;
+    else {
+      var _this = this;
+      clearInterval(this._interval);
+      this._interval = setInterval(this._intervalFunc, this._opts.intervalSpeed || 1000);
     }
-    var _this = this;
-    clearInterval(this._interval);
-    this._interval = setInterval(function() {
-      document.title = _this._substitute(_this._lastState);
-      if(Array.isArray(_this._vars))
-        _this._lastState = (_this._lastState + 1) % _this._vars.length;
-      else
-        _this._lastState = !_this._lastState;
-    }, this._intervalSpeed);
   },
-  reset: function() {
-    document.title = this.origTitle;
+  stop: function() {
+    document.title = this.originalTitle;
     clearInterval(this._interval);
-  }
+  },
+  _substitute: function(varsIndex) {
+    var multipass = Array.isArray(this._vars);
+    if(!multipass && varsIndex)
+      return this.originalTitle;
+    var result = this._templ;
+    var vars = multipass ? this._vars[varsIndex] : this._vars;
+    var keys = Object.keys(this._regex);
+    for(var i=0; i<keys.length; i++)
+      result = result.replace(this._regex[keys[i]], vars[keys[i]] || '');
+    return result;
+  },
+  _focus: function() {
+    var _this = TabDude;
+    _this._pageFocused = true;
+    if(_this._opts.noFocus)
+      _this.stop();
+    _this._originalOnFocus && _this._originalOnFocus();
+  },
+  _blur: function() {
+    var _this = TabDude;
+    _this._pageFocused = false;
+    _this._originalOnBlur && _this._originalOnBlur();
+  },
+  _intervalFunc: function() {
+    var _this = TabDude;
+    document.title = _this._substitute(_this._lastState);
+    if(Array.isArray(_this._vars))
+      _this._lastState = (_this._lastState + 1) % _this._vars.length;
+    else
+      _this._lastState = !_this._lastState;
+  },
+  _opts: {},
+  _interval: null,
+  _vars: null,
+  _lastState: 0,
+  _templ: null,
+  _regex: null,
+  _originalOnFocus: null,
+  _originalOnBlur: null,
+  _pageFocused: null
 }
+
+TabDude._originalOnFocus = window.onfocus;
+TabDude._originalOnBlur = window.onblur;
+window.onfocus = TabDude._focus;
+window.onblur = TabDude._blur;

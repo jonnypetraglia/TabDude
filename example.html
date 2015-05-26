@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TabDude</title>
+  <meta charset="utf-8">
+</head>
+<body>
+
+  <p>
+    <label for="template">Template</label>
+    <input id="template" value="{{tabDude}} - {{title}}"/>
+  </p>
+  <p>
+    <label for="args">Arguments</label>
+    <input id="args" value='{"tabDude": "^_^"}'/>
+  </p>
+
+  <input type="button" onclick="start()" value="Start"/>
+  <input type="button" onclick="TabDude.restart()" value="Restart"/>
+  <input type="button" onclick="update()" value="Update"/>
+  <input type="button" onclick="TabDude.stop()" value="Stop"/>
+  <input type="button" onclick="nofocus()" value="No Focus"/>
+
+  <script src="index.js"></script>
+  <script type="text/javascript">
+
+    function nofocus() {
+      setTimeout(function() {
+        var template = document.getElementById("template").value,
+            args = document.getElementById("args").value;
+        console.log(template, args, args.length)
+        TabDude.start(
+          template,
+          args.length ? JSON.parse(args) : null,
+          {noFocus: true, intervalSpeed: 3000}
+        );
+      }, 3000);
+    }
+    function start() {
+      var template = document.getElementById("template").value,
+        args = document.getElementById("args").value;
+      console.log(template, args, args.length)
+      TabDude.start(
+        template,
+        args.length ? JSON.parse(args) : null,
+        {intervalSpeed: 500}
+      );
+    }
+
+    function update() {
+      var args = document.getElementById("args").value;
+      console.log(args, args.length)
+      TabDude.update(args.length ? JSON.parse(args) : null);
+    }
+  </script>
+
+</body>
+</html>
