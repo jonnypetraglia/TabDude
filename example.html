@@ -8,11 +8,11 @@
 
   <p>
     <label for="template">Template</label>
-    <input id="template" value="{{tabDude}} - {{title}}"/>
+    <input id="template" value="{{tabDude}} ({{val}}) - {{title}}"/>
   </p>
   <p>
     <label for="args">Arguments</label>
-    <input id="args" value='{"tabDude": "^_^"}'/>
+    <input id="args" value='{"tabDude": "^_^", "val": 1}'/>
   </p>
 
   <input type="button" onclick="start()" value="Start"/>
@@ -20,6 +20,9 @@
   <input type="button" onclick="update()" value="Update"/>
   <input type="button" onclick="TabDude.stop()" value="Stop"/>
   <input type="button" onclick="nofocus()" value="No Focus"/>
+
+  <input type="button" onclick="TabDude.incr()" value="+1"/>
+  <input type="button" onclick="TabDude.decr()" value="-1"/>
 
   <script src="index.js"></script>
   <script type="text/javascript">

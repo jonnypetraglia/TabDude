@@ -3,11 +3,11 @@ var TabDude = {
   start: function(template, vars, options) {
     this._opts = options || this._opts;
     this._templ = template || this._templ;
-    this._regex = {};
-    var matcher = /{{ ?([A-Za-z0-9_][A-Za-z0-9_-]+) ?}}/gi;
+    this._regex = {title: new RegExp("{{ *title *}}", "gi")};
+    var matcher = /{{ *([A-Za-z0-9_][A-Za-z0-9_-]+) *}}/gi;
     var match;
     while(match = matcher.exec(this._templ))
-      this._regex[match[1]] = new RegExp("{{ ?" + match[1] + " ?}}", "gi");
+        this._regex[match[1]] = new RegExp("{{ *" + match[1] + " *}}", "gi");
     this.set(vars);
   },
   restart: function() { this.start() },
@@ -30,15 +30,21 @@ var TabDude = {
     document.title = this.originalTitle;
     clearInterval(this._interval);
   },
+  incr: function(amnt) {
+    this._vars.val = this._vars.val+(amnt||1);
+  },
+  decr: function(amnt) {
+    this.incr(-1 * (amnt||1));
+  },
   _substitute: function(varsIndex) {
     var multipass = Array.isArray(this._vars);
     if(!multipass && varsIndex)
       return this.originalTitle;
-    var result = this._templ;
     var vars = multipass ? this._vars[varsIndex] : this._vars;
+    var result = this._templ.replace(this._regex.title, vars.title || this.originalTitle);
     var keys = Object.keys(this._regex);
     for(var i=0; i<keys.length; i++)
-      result = result.replace(this._regex[keys[i]], vars[keys[i]] || '');
+      result = result.replace(this._regex[keys[i]], vars[keys[i]] != null ? vars[keys[i]].toString() : '');
     return result;
   },
   _focus: function() {
